@@ -50,15 +50,30 @@ export const actAddProduct = (product) => {
     }
 }
 
-export const actEditProductRequest = (product) => {
+export const actGetProductRequest = (id) => {
     return dispatch => {
-        return apiCaller(`products/${product.id}`, 'PUT', product).then(response => {                                                
-             dispatch(actAddProduct(response.data))
+        return apiCaller(`products/${id}`, 'GET', null).then(response => {                                                
+             dispatch(actEditProduct(response.data))
         }); 
     }
 }
 
 export const actEditProduct = (product) => {
+    return {
+        type: Types.EDIT_PRODUCT,
+        product
+    }
+}
+
+export const actUpdateProductRequest = (product) => {
+    return dispatch => {
+        return apiCaller(`products/${product.id}`, 'PUT', product).then(response => {                                                
+             dispatch(actUpdateProduct(response.data))
+        }); 
+    }
+}
+
+export const actUpdateProduct = (product) => {
     return {
         type: Types.UPDATE_PRODUCT,
         product

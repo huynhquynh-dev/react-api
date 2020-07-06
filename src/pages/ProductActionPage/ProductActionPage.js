@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
-import apiCaller from './../../utils/apiCaller';
 import { Link } from 'react-router-dom';
-import { actAddProductRequest, actEditProductRequest } from '../../actions/productActions';
+import { actAddProductRequest, actGetProductRequest, actUpdateProductRequest } from '../../actions/productActions';
 import { connect } from 'react-redux';
 
 class ProductActionPage extends Component {
@@ -38,7 +37,7 @@ class ProductActionPage extends Component {
         }
 
         if (product.id) {
-            this.props.editProduct(product);
+            this.props.updateProduct(product);
             history.goBack();
         }
         else {
@@ -50,16 +49,20 @@ class ProductActionPage extends Component {
     componentDidMount() {
         const { match } = this.props;
         if (match) {
-            apiCaller(`products/${match.params.id}`, 'GET', null).then(res => {
-                this.setState({
-                    id:res.data.id,
-                    txtName:res.data.name,
-                    txtPrice:res.data.price,
-                    chkbStatus:res.data.status                     
-                }); 
-                console.log(this.state);                               
-            });
+            this.props.editProduct(match.params.id);            
         }        
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (nextProps && nextProps.itemEditing) {
+            var { itemEditing } = nextProps;
+            this.setState({
+                id: itemEditing.id,
+                txtName: itemEditing.name,
+                txtPrice: itemEditing.price,
+                chkbStatus: itemEditing.status
+            });
+        }
     }
 
     render() {
@@ -120,15 +123,24 @@ class ProductActionPage extends Component {
     }
 }
 
+const mapStateToProps = state => {
+    return {
+        itemEditing: state.itemEditing
+    }
+}
+
 const mapDispatchToProps = (dispatch, props) => {
     return {
         addProduct: (product) => {
             dispatch(actAddProductRequest(product));
         },
-        editProduct: (product) => {
-            dispatch(actEditProductRequest(product));
+        editProduct: (id) => {
+            dispatch(actGetProductRequest(id));
+        },
+        updateProduct: (product) => {
+            dispatch(actUpdateProductRequest(product));
         }
     }
 }
 
-export default connect(null, mapDispatchToProps) (ProductActionPage);
+export default connect(mapStateToProps, mapDispatchToProps) (ProductActionPage);
